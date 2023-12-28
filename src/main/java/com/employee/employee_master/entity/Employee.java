@@ -15,8 +15,9 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 public class Employee {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long empId;
     private String firstName;
     private String lastName;
