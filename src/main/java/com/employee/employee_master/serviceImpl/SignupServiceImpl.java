@@ -21,14 +21,14 @@ public class SignupServiceImpl implements SignupService {
 
     @Autowired
     SignupRepository signupRepository;
-    private PasswordEncoder passwordEncoder;
     @Autowired
     EmailService emailService;
     @Autowired
     OtpValidationRepository otpValidationRepository;
-
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
     public ResponseEntity<Object> employeeSignup(SignupRequestDTO signupRequestDTO) {
