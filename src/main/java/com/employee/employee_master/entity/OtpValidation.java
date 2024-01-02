@@ -9,19 +9,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SignupRequest {
+public class OtpValidation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String fullName;
+    private Long empId;
     private String email;
-    private String password;
-    private String phoneNo;
+    private String otp;
+    private LocalDateTime expirationTime;
+    private boolean validated;
 
 }
