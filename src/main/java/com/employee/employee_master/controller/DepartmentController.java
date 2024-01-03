@@ -28,13 +28,22 @@ public class DepartmentController {
     SignupRepository signupRepository;
 
     @PostMapping("/addDepartment")
-    public Department addEmployee(@RequestBody Department department){
-        return departmentService.addDepartment(department);
+    public ResponseEntity<Object> addEmployee(@RequestBody Department department,@RequestHeader("Authorization") String bearerToken){
+        bearerToken = bearerToken.substring(7, bearerToken.length());
+        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+        String email = claims.get("email").toString();
+        SignupRequest existingUser = signupRepository.findByEmail(email);
+        if(existingUser!=null) {
+            return new ResponseEntity<>(departmentService.addDepartment(department), HttpStatus.OK);
+        }else {
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage("Unauthorized token");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @GetMapping("/viewDepartmentList")
     public ResponseEntity<Object> viewDepartmentList(@RequestHeader("Authorization") String bearerToken){
-        System.out.println(bearerToken);
         bearerToken = bearerToken.substring(7, bearerToken.length());
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
