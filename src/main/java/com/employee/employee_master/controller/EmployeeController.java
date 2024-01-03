@@ -48,7 +48,7 @@ public class EmployeeController {
 
     @PostMapping("/signup")
     public ResponseEntity<Object> employeeLogin(@RequestBody SignupRequestDTO signupRequestDTO){
-       // return signupService.employeeSignup(modelMapper.map(signupRequestDTO, SignupRequest.class));
+
         return signupService.employeeSignup(signupRequestDTO);
     }
 
