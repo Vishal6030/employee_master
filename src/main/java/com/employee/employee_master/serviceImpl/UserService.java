@@ -1,7 +1,7 @@
 package com.employee.employee_master.serviceImpl;
 
-import com.employee.employee_master.entity.SignupRequest;
-import com.employee.employee_master.repository.SignupRepository;
+import com.employee.employee_master.entity.Employee;
+import com.employee.employee_master.repository.EmployeeRepo;
 import com.employee.employee_master.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -15,14 +15,14 @@ import java.util.ArrayList;
 public class UserService implements IUserService {
 
     @Autowired
-    SignupRepository signupRepository;
+    EmployeeRepo employeeRepo;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        SignupRequest signupRequest = signupRepository.findByEmail(userName);
-        if (signupRequest == null) {
+        Employee employee = employeeRepo.findByWorkEmail(userName);
+        if (employee == null) {
             throw new UsernameNotFoundException("User not found:" + userName);
         }
-        return new User(signupRequest.getEmail(), signupRequest.getPassword(), new ArrayList<>());
+        return new User(employee.getWorkEmail(), employee.getPassword(), new ArrayList<>());
     }
 }

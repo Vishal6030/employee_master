@@ -5,7 +5,6 @@ import com.employee.employee_master.entity.Employee;
 import com.employee.employee_master.entity.OtpValidation;
 import com.employee.employee_master.security.JWTUtility;
 import com.employee.employee_master.service.EmployeeService;
-import com.employee.employee_master.service.SignupService;
 import io.jsonwebtoken.Claims;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,29 +27,12 @@ public class EmployeeController {
 
     @Autowired
     ModelMapper modelMapper;
-
-    @Autowired
-    SignupService signupService;
-
     @Autowired
     EmployeeService employeeService;
-
     @Autowired
     JWTUtility jwtUtility;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
-    @GetMapping("/test")
-    public String test(){
-        return "test";
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<Object> employeeLogin(@RequestBody SignupRequestDTO signupRequestDTO){
-
-        return signupService.employeeSignup(signupRequestDTO);
-    }
 
     @PostMapping("/addEmployee")
     public Employee addEmployee(@RequestBody Employee employee){
@@ -83,7 +65,6 @@ public class EmployeeController {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDTO.getEmail(), loginDTO.getPassword()));
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (BadCredentialsException e) {
             ResponseDTO er = new ResponseDTO();
@@ -96,26 +77,22 @@ public class EmployeeController {
         return generateToken(loginDTO.getEmail());
     }
 
-    //implement jwt token authentication
     @PostMapping("/changePassword")
     public ResponseEntity<Object> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO, @RequestHeader("Authorization") String bearerToken) {
-        //ResponseDTO er = new ResponseDTO();
         bearerToken = bearerToken.substring(7, bearerToken.length());
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
-        System.out.println("email:" + email);
-        return signupService.changePassword(email, changePasswordDTO);
+        return employeeService.changePassword(email, changePasswordDTO);
     }
 
-    //This controller is for otp validation
     @GetMapping("/forgetPassword/{email}")
     public ResponseEntity<Object> sendEmail(@PathVariable("email") String email) {
-        return signupService.sentEmail(email);
+        return employeeService.sentEmail(email);
     }
 
     @PostMapping("/otpValidate")
     public ResponseEntity<Object> otpValidate(@RequestBody OtpValidateDTO otpValidateDTO) {
-        OtpValidation otpValidation = signupService.validateOtp(otpValidateDTO);
+        OtpValidation otpValidation = employeeService.validateOtp(otpValidateDTO);
         if(otpValidation!=null){
             return generateToken(otpValidation.getEmail());
         }else{
@@ -130,10 +107,9 @@ public class EmployeeController {
         bearerToken = bearerToken.substring(7, bearerToken.length());
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
-        return signupService.forgetPassword(email, forgetPasswordDTO);
+        return employeeService.forgetPassword(email, forgetPasswordDTO);
     }
 
-    //add email id in claims at the time of generating JWT token
     public ResponseEntity<Object> generateToken(String email) {
         HashMap<String, String> data = new HashMap<>();
         data.put("email", email);

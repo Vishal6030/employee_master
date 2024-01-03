@@ -3,9 +3,9 @@ package com.employee.employee_master.controller;
 import com.employee.employee_master.dto.EmployerDetailsDTO;
 import com.employee.employee_master.dto.ResponseDTO;
 import com.employee.employee_master.encryption.AESEncryption;
+import com.employee.employee_master.entity.Employee;
 import com.employee.employee_master.entity.EmployerDetails;
-import com.employee.employee_master.entity.SignupRequest;
-import com.employee.employee_master.repository.SignupRepository;
+import com.employee.employee_master.repository.EmployeeRepo;
 import com.employee.employee_master.security.JWTUtility;
 import com.employee.employee_master.service.EmployerDetailsService;
 import io.jsonwebtoken.Claims;
@@ -21,7 +21,7 @@ public class EmployerDetailsController {
     @Autowired
     EmployerDetailsService employerDetailsService;
     @Autowired
-    SignupRepository signupRepository;
+    EmployeeRepo employeeRepo;
     @Autowired
     JWTUtility jwtUtility;
     @Autowired
@@ -32,7 +32,7 @@ public class EmployerDetailsController {
         bearerToken = bearerToken.substring(7, bearerToken.length());
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
-        SignupRequest existingUser = signupRepository.findByEmail(email);
+        Employee existingUser = employeeRepo.findByWorkEmail(email);
         if (existingUser != null) {
             return employerDetailsService.addEmployeeDetails(employerDetailsDTO);
         } else {
@@ -47,7 +47,7 @@ public class EmployerDetailsController {
         bearerToken = bearerToken.substring(7, bearerToken.length());
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
-        SignupRequest existingUser = signupRepository.findByEmail(email);
+        Employee existingUser = employeeRepo.findByWorkEmail(email);
         if (existingUser != null) {
             EmployerDetails details = employerDetailsService.getEmployeeDetailsById(id);
 
@@ -71,13 +71,13 @@ public class EmployerDetailsController {
         bearerToken = bearerToken.substring(7, bearerToken.length());
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
-        SignupRequest existingUser = signupRepository.findByEmail(email);
+        Employee existingUser = employeeRepo.findByWorkEmail(email);
         if (existingUser != null) {
             EmployerDetails details = employerDetailsService.getEmployeeDetailsById(id);
 
-            EmployerDetailsDTO newResponse = new EmployerDetailsDTO(details.getId(), details.getEmpId(), details.getEmpName(),
-                    aesEncryption.decrypt(details.getSalary(), details.getSecretKey()));
             if (details != null) {
+                EmployerDetailsDTO newResponse = new EmployerDetailsDTO(details.getId(), details.getEmpId(), details.getEmpName(),
+                        aesEncryption.decrypt(details.getSalary(), details.getSecretKey()));
                 return new ResponseEntity<>(newResponse, HttpStatus.OK);
             } else {
                 ResponseDTO response = new ResponseDTO();

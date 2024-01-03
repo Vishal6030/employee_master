@@ -34,4 +34,5 @@ public class Employee {
     private Long addressId2;
     private Long departmentId;
     private Long designationId;
+    private String password;
 }
