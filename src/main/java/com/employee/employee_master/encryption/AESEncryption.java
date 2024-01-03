@@ -6,33 +6,28 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import java.util.Base64;
+
 @Component
 public class AESEncryption {
 
     public SecretKey generateSecretKey() throws Exception {
-        // Use KeyGenerator to generate a secret key
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
         keyGenerator.init(256); // You can choose different key sizes (128, 192, or 256 bits)
         return keyGenerator.generateKey();
     }
-
-    public byte[] encrypt(String originalText, Key key) throws Exception {
-        // Create Cipher instance and initialize it for encryption
+    public String encrypt(String text, SecretKey secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-
-        // Perform encryption
-        return cipher.doFinal(originalText.getBytes(StandardCharsets.UTF_8));
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedBytes = cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    public String decrypt(byte[] encryptedText, Key key) throws Exception {
-        // Create Cipher instance and initialize it for decryption
+    public String decrypt(String encryptedText, SecretKey secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-
-        // Perform decryption
-        byte[] decryptedBytes = cipher.doFinal(encryptedText);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
+        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
         return new String(decryptedBytes, StandardCharsets.UTF_8);
     }
 }

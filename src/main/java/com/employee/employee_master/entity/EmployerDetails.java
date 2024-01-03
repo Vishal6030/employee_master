@@ -17,6 +17,7 @@ public class EmployerDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long empId;
+    private String empName;
     private String salary;
     private SecretKey secretKey;
 }

@@ -31,14 +31,14 @@ public class EmployerDetailsServiceImpl implements EmployerDetailsService {
         if(emp!=null) {
             try {
                 SecretKey key = aesEncryption.generateSecretKey();
-                byte[] encryptedSalary = aesEncryption.encrypt(emp.getSalary(), key);
-                emp.setSalary(new String(encryptedSalary, StandardCharsets.UTF_8));
+                String encryptedSalary = aesEncryption.encrypt(emp.getSalary(), key);
+                emp.setSalary(encryptedSalary);
                 emp.setSecretKey(key);
                 employerDetailsRepo.save(emp);
             } catch (Exception ex) {
 
             }
-            return new ResponseEntity<>(new EmployerDetailsDTO(emp.getId(), emp.getEmpId(), emp.getSalary()), HttpStatus.OK);
+            return new ResponseEntity<>(new EmployerDetailsDTO(emp.getId(), emp.getEmpId(), emp.getEmpName(), emp.getSalary()), HttpStatus.OK);
         }else{
             ResponseDTO response = new ResponseDTO();
             response.setMessage("Error!");
