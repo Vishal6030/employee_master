@@ -22,12 +22,14 @@ import java.util.stream.Collectors;
 @Component
 public class JWTUtility {
 
+    public static final long JWT_TOKEN_VALIDITY = 24 * 60 * 60;
+    private String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";
+
    /* @Value("${security.jwt.secret}")
     private String secretKey;*/
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    @Value("${security.jwt.token.expire.length}")
-    private long validityInMilliseconds; // 1h
+    /*@Value("${security.jwt.token.expire.length}")
+    private long validityInMilliseconds;*/
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -44,7 +46,7 @@ public class JWTUtility {
     }
 
     public Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -60,32 +62,10 @@ public class JWTUtility {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("auth", appUserRoles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull).collect(Collectors.toList()));
         claims.putAll(data);
-        Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
-        return Jwts.builder()
-                .setSubject(username)
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(validity)
-                .signWith(SECRET_KEY)
-                .compact();
+
+        return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                .signWith(SignatureAlgorithm.HS512, secret).compact();
+
     }
-
-
-   /* public String generateToken(Authentication authentication){
-        String username = authentication.getName();
-
-        Date currentDate = new Date();
-        System.out.println("secret: "+ SECRET_KEY);
-
-        Date expireDate = new Date(currentDate.getTime() + validityInMilliseconds);
-
-        String token = Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(expireDate)
-                .signWith(SECRET_KEY)
-                .compact();
-        return token;
-    }*/
 }
