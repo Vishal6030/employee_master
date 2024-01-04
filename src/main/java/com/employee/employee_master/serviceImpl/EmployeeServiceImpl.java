@@ -6,6 +6,7 @@ import com.employee.employee_master.dto.OtpValidateDTO;
 import com.employee.employee_master.dto.ResponseDTO;
 import com.employee.employee_master.entity.Employee;
 import com.employee.employee_master.entity.OtpValidation;
+import com.employee.employee_master.exception.EmployeeNotFoundException;
 import com.employee.employee_master.repository.EmployeeRepo;
 import com.employee.employee_master.repository.OtpValidationRepository;
 import com.employee.employee_master.service.EmployeeService;
@@ -21,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @CacheConfig(cacheNames = "employees")
@@ -52,25 +51,49 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
     )
     public ResponseEntity<Object> addEmployee(Employee employee) {
+        //This method is used to add employee through procedure.
+        //The below method(addAndUpdateEmployeeProcedure) is compatible to add and update both from a single method.
         return addAndUpdateEmployeeProcedure(employee, "add_employee");
     }
 
     @Override
     @Cacheable(value = "allEmployees")
     public List<Employee> viewAllEmployees() {
+        // This method is giving a complete list of employees.
+        List<Employee> employeeList= employeeRepo.findAll();
+        if(employeeList.isEmpty()){
+            throw new EmployeeNotFoundException("No employees Found!");
+        }
         return employeeRepo.findAll();
     }
 
     @Override
     @Cacheable(value = "#empCompanyId")
     public List<Employee> viewEmployeesByCompanyId(Long companyId) {
-        return employeeRepo.findByCompanyId(companyId);
+        //This method is used to find employee List by companyId.
+        Map<String, String> response = new HashMap<>();
+        List<Employee> employee=employeeRepo.findByCompanyId(companyId);
+
+        if (!employee.isEmpty()) {
+            return employee;
+        } else {
+            throw new EmployeeNotFoundException("No Employee found with given ID");
+        }
     }
 
     @Override
     @Cacheable(value = "#empId")
     public Object findEmployeeById(Long empId) {
-        return employeeRepo.findById(empId);
+        //This method is used to find employee by employeeId.
+        Map<String, String> response = new HashMap<>();
+        Optional<Employee> employee=employeeRepo.findById(empId);
+
+        if(employee.isPresent()){
+            return employee;
+        }else{
+            response.put("message :", "Employee Not found with given Id ");
+            return response;
+        }
     }
 
     @Override
@@ -82,6 +105,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
     )
     public ResponseEntity<Object> updateEmployee(Employee employee) {
+        //This method is used to update details of an employee.
         ResponseDTO responseDTO = new ResponseDTO();
         Optional<Employee> employeeOptional = employeeRepo.findById(employee.getEmpId());
         if (employeeOptional.isPresent()) {
@@ -101,6 +125,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
     )
     public ResponseEntity<Object> changePassword(String email, ChangePasswordDTO changePasswordDTO) {
+        //This method is used to change/set password by taking token.
         ResponseDTO response = new ResponseDTO();
         Employee existingUser = employeeRepo.findByWorkEmail(email);
 
@@ -123,6 +148,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public ResponseEntity<Object> sentEmail(String email) {
+        //This method is used to send OTP through email.
         Employee existingUser = employeeRepo.findByWorkEmail(email);
         ResponseDTO response = new ResponseDTO();
         if (existingUser != null) {
@@ -145,6 +171,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public ResponseEntity<Object> forgetPassword(String email, ForgetPasswordDTO forgetPasswordDTO) {
+        //This method is used to reset password without taking token (without login).
         ResponseDTO response = new ResponseDTO();
         Employee existingUser = employeeRepo.findByWorkEmail(email);
         if (existingUser == null) {
@@ -165,6 +192,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public OtpValidation validateOtp(OtpValidateDTO otpValidateDTO) {
+        //This method is verifying the OTP from User.
         LocalDateTime now = LocalDateTime.now();
         OtpValidation otpValidation = otpValidationRepository.
                 findByEmailAndOtpAndValidatedFalseAndExpirationTimeAfter(otpValidateDTO.getEmail(), otpValidateDTO.getOtp(), now);
@@ -186,12 +214,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public String getRandomNumberString() {
+        //This method is assigning some random value for encryption.
         Random random = new Random();
         int number = random.nextInt(999999);
         return String.format("%06d", number);
     }
 
     public ResponseEntity<Object> addAndUpdateEmployeeProcedure(Employee employee, String procedure) {
+        //This method is compatible to add and update both from a single method.
         StoredProcedureQuery query = entityManager.createNamedStoredProcedureQuery(procedure);
         ResponseDTO response = new ResponseDTO();
         if (procedure.equalsIgnoreCase("update_employee")) {

@@ -20,6 +20,7 @@ public class EmailService implements IEmailService {
 
     @Override
     public String sendSimpleMail(String to, String subject, String content) {
+        //This method is the main method to sending the OTP on mail.
         SimpleMailMessage mailMessage = new SimpleMailMessage();
 
         mailMessage.setFrom("BBI Infotech <"+sender+">");

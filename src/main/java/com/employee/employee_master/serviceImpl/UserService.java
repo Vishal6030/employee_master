@@ -19,6 +19,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        //This method is helping for logging in.
         Employee employee = employeeRepo.findByWorkEmail(userName);
         if (employee == null) {
             throw new UsernameNotFoundException("User not found:" + userName);

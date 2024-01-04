@@ -3,6 +3,7 @@ package com.employee.employee_master.controller;
 import com.employee.employee_master.dto.*;
 import com.employee.employee_master.entity.Employee;
 import com.employee.employee_master.entity.OtpValidation;
+import com.employee.employee_master.exception.EmployeeNotFoundException;
 import com.employee.employee_master.security.JWTUtility;
 import com.employee.employee_master.service.EmployeeService;
 import io.jsonwebtoken.Claims;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -51,7 +53,7 @@ public class EmployeeController {
 
     @GetMapping("/findEmployeeById/{empId}")
     public Object findEmployeeById(@PathVariable Long empId){
-        return employeeService.findEmployeeById(empId);
+             return employeeService.findEmployeeById(empId);
     }
 
     @PutMapping("/updateEmployee")

@@ -21,12 +21,24 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @CacheEvict(value = "departmentList",allEntries = true)
     public Department addDepartment(Department department) {
-        return departmentRepo.save(department);
+        //This method is used to add department by taking departmentName,ManagerId and cost center(basically turnover).
+        try {
+            return departmentRepo.save(department);
+        } catch (Exception e) {
+            String errorMessage = e.getMessage();
+            throw new RuntimeException("Error adding department: " + errorMessage, e);
+        }
     }
 
     @Override
     @Cacheable(value = "departmentList")
     public List<Department> viewDepartmentList() {
-        return departmentRepo.findAll();
+        //This method is used to view all available departments.
+        try {
+            return departmentRepo.findAll();
+        } catch (Exception e) {
+            String errorMessage = e.getMessage();
+            throw new RuntimeException("Error fetching department list: "+ errorMessage, e);
+        }
     }
 }
