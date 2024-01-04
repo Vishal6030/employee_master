@@ -77,7 +77,7 @@ public class EmployerDetailsController {
 
     @GetMapping("/getEmployerDetailsByEmpIdDecrypt/{id}")
     public ResponseEntity<Object> getEmployerDetailsDecryption(@PathVariable("id") Long id, @RequestHeader("Authorization") String bearerToken) throws Exception {
-        bearerToken = bearerToken.substring(7, bearerToken.length());
+        bearerToken = bearerToken.substring(7);
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
         Employee existingUser = employeeRepo.findByWorkEmail(email);
