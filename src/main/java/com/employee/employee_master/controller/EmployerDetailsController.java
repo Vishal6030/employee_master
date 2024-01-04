@@ -14,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.*;
+import java.util.*;
+
 @RestController
 @RequestMapping("/employer")
 public class EmployerDetailsController {
@@ -50,7 +53,13 @@ public class EmployerDetailsController {
         Employee existingUser = employeeRepo.findByWorkEmail(email);
         if (existingUser != null) {
             EmployerDetails details = employerDetailsService.getEmployeeDetailsById(id);
+            System.out.println("secret"+details.getSecretKey());
 
+            SecretKey secretKey = details.getSecretKey();
+
+            // Convert the secret key to a Base64-encoded string
+            String keyString = keyToString(secretKey);
+            System.out.println(keyString);
             EmployerDetailsDTO newResponse = new EmployerDetailsDTO(details.getId(), details.getEmpId(), details.getEmpName(), details.getSalary());
             if (details != null) {
                 return new ResponseEntity<>(newResponse, HttpStatus.OK);
@@ -89,5 +98,10 @@ public class EmployerDetailsController {
             response.setMessage("Unauthorized");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    private static String keyToString(SecretKey secretKey) {
+        byte[] keyBytes = secretKey.getEncoded();
+        return Base64.getEncoder().encodeToString(keyBytes);
     }
 }
