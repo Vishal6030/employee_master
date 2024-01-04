@@ -51,7 +51,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     @CacheEvict(value = "#empId", allEntries = true)
             }
     )
-    public Employee addEmployee(Employee employee) {
+    public ResponseEntity<Object> addEmployee(Employee employee) {
         return addAndUpdateEmployeeProcedure(employee, "add_employee");
     }
 
@@ -81,12 +81,14 @@ public class EmployeeServiceImpl implements EmployeeService {
                     @CacheEvict(value = "'#empId'", allEntries = true)
             }
     )
-    public Object updateEmployee(Employee employee) {
+    public ResponseEntity<Object> updateEmployee(Employee employee) {
+        ResponseDTO responseDTO = new ResponseDTO();
         Optional<Employee> employeeOptional = employeeRepo.findById(employee.getEmpId());
         if (employeeOptional.isPresent()) {
             return addAndUpdateEmployeeProcedure(employee, "update_employee");
         } else {
-            return "Employee Id not found!";
+            responseDTO.setMessage("Employee Id not found!");
+            return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -189,10 +191,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         return String.format("%06d", number);
     }
 
-    public Employee addAndUpdateEmployeeProcedure(Employee employee, String procedure) {
+    public ResponseEntity<Object> addAndUpdateEmployeeProcedure(Employee employee, String procedure) {
         StoredProcedureQuery query = entityManager.createNamedStoredProcedureQuery(procedure);
+        ResponseDTO response = new ResponseDTO();
         if (procedure.equalsIgnoreCase("update_employee")) {
-            query.setParameter("p_emp_id", employee.getAddressId1());
+            query.setParameter("p_emp_id", employee.getEmpId());
+            response.setMessage("Employee Updated Successfully");
+        }else{
+            response.setMessage("Employee Added Successfully");
         }
         query.setParameter("p_address_id1", employee.getAddressId1());
         query.setParameter("p_address_id2", employee.getAddressId2());
@@ -214,6 +220,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPassword(passwordEncoded);
         query.execute();
         entityManager.clear();
-        return employeeRepo.findByEmpId(employee.getEmpId());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

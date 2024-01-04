@@ -35,7 +35,7 @@ public class EmployeeController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/addEmployee")
-    public Employee addEmployee(@RequestBody Employee employee){
+    public ResponseEntity<Object> addEmployee(@RequestBody Employee employee){
         return employeeService.addEmployee(employee);
     }
 
@@ -55,7 +55,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/updateEmployee")
-    public Object updateEmployee(@RequestBody Employee employee){
+    public ResponseEntity<Object> updateEmployee(@RequestBody Employee employee){
         return employeeService.updateEmployee(employee);
     }
 
