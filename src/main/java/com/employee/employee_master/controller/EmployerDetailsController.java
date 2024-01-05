@@ -53,15 +53,9 @@ public class EmployerDetailsController {
         Employee existingUser = employeeRepo.findByWorkEmail(email);
         if (existingUser != null) {
             EmployerDetails details = employerDetailsService.getEmployeeDetailsById(id);
-            System.out.println("secret"+details.getSecretKey());
 
-            SecretKey secretKey = details.getSecretKey();
-
-            // Convert the secret key to a Base64-encoded string
-            String keyString = keyToString(secretKey);
-            System.out.println(keyString);
-            EmployerDetailsDTO newResponse = new EmployerDetailsDTO(details.getId(), details.getEmpId(), details.getEmpName(), details.getSalary());
             if (details != null) {
+                EmployerDetailsDTO newResponse = new EmployerDetailsDTO(details.getId(), details.getEmpId(), details.getEmpName(), details.getSalary());
                 return new ResponseEntity<>(newResponse, HttpStatus.OK);
             } else {
                 ResponseDTO response = new ResponseDTO();

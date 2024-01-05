@@ -1,21 +1,16 @@
 package com.employee.employee_master.serviceImpl;
 
-import com.employee.employee_master.dto.EmployerDetailsDTO;
-import com.employee.employee_master.dto.ResponseDTO;
-import com.employee.employee_master.encryption.AESEncryption;
-import com.employee.employee_master.entity.EmployerDetails;
-import com.employee.employee_master.exception.EmployeeNotFoundException;
-import com.employee.employee_master.repository.EmployerDetailsRepo;
-import com.employee.employee_master.service.EmployerDetailsService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import com.employee.employee_master.dto.*;
+import com.employee.employee_master.encryption.*;
+import com.employee.employee_master.entity.*;
+import com.employee.employee_master.repository.*;
+import com.employee.employee_master.service.*;
+import org.modelmapper.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.*;
+import org.springframework.stereotype.*;
 
-import javax.crypto.SecretKey;
-import java.util.Optional;
+import javax.crypto.*;
 
 @Service
 public class EmployerDetailsServiceImpl implements EmployerDetailsService {
@@ -60,13 +55,12 @@ public class EmployerDetailsServiceImpl implements EmployerDetailsService {
     public EmployerDetails getEmployeeDetailsById(Long id) {
         //This method is used to know salary details of an employee.
         try {
-            Optional<EmployerDetails> optionalDetails = employerDetailsRepo.findById(id);
-
-            if (optionalDetails.isPresent()) {
-                return optionalDetails.get();
+            EmployerDetails optionalDetails = employerDetailsRepo.findByEmpId(id);
+            if (optionalDetails!=null) {
+                return optionalDetails;
             } else {
                 // Handling the case where no employee details were found for the given id.
-                throw new EmployeeNotFoundException("Employee details not found for id: " + id);
+                return null;
             }
         } catch (Exception ex) {
             // Log the exception
@@ -74,9 +68,4 @@ public class EmployerDetailsServiceImpl implements EmployerDetailsService {
             throw new RuntimeException("Error retrieving employee details by id: " + id);
         }
     }
-//    @Override
-//    public EmployerDetails getEmployeeDetailsById(Long id) {
-//        EmployerDetails details = employerDetailsRepo.findByEmpId(id);
-//        return details;
-//    }
 }

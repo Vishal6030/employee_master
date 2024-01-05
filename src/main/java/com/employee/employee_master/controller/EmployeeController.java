@@ -42,12 +42,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/viewAllEmployees")
-    public List<Employee> viewAllEmployees(){
+    public ResponseEntity<Object> viewAllEmployees(){
         return employeeService.viewAllEmployees();
     }
 
     @GetMapping("/viewEmployeeListByCompanyId/{companyId}")
-    public List<Employee> viewEmployeesByCompanyId(@PathVariable Long companyId){
+    public ResponseEntity<Object> viewEmployeesByCompanyId(@PathVariable Long companyId){
         return employeeService.viewEmployeesByCompanyId(companyId);
     }
 
@@ -68,13 +68,10 @@ public class EmployeeController {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDTO.getEmail(), loginDTO.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (BadCredentialsException e) {
+        } catch (Exception e) {
             ResponseDTO er = new ResponseDTO();
-            HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
             er.setMessage("INVALID CREDENTIALS");
-            return new ResponseEntity<>(er, httpStatus);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            return new ResponseEntity<>(er, HttpStatus.BAD_REQUEST);
         }
         return generateToken(loginDTO.getEmail());
     }

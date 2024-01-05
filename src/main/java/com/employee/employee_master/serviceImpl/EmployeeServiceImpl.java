@@ -58,26 +58,28 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Cacheable(value = "allEmployees")
-    public List<Employee> viewAllEmployees() {
+    public ResponseEntity<Object> viewAllEmployees() {
         // This method is giving a complete list of employees.
         List<Employee> employeeList= employeeRepo.findAll();
         if(employeeList.isEmpty()){
-            throw new EmployeeNotFoundException("No employees Found!");
-        }
-        return employeeRepo.findAll();
-    }
+            return new ResponseEntity<>(employeeList, HttpStatus.OK);
+        }else{
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage("Employee not found!");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }}
 
     @Override
     @Cacheable(value = "#empCompanyId")
-    public List<Employee> viewEmployeesByCompanyId(Long companyId) {
+    public ResponseEntity<Object> viewEmployeesByCompanyId(Long companyId) {
         //This method is used to find employee List by companyId.
-        Map<String, String> response = new HashMap<>();
         List<Employee> employee=employeeRepo.findByCompanyId(companyId);
-
         if (!employee.isEmpty()) {
-            return employee;
+            return new ResponseEntity<>(employee, HttpStatus.OK);
         } else {
-            throw new EmployeeNotFoundException("No Employee found with given ID");
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage("No Employee found!");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 

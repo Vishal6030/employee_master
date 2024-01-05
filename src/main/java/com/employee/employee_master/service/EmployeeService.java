@@ -10,8 +10,8 @@ import java.util.List;
 public interface EmployeeService {
 
     ResponseEntity<Object> addEmployee(Employee employee);
-    public List<Employee> viewAllEmployees();
-    public List<Employee> viewEmployeesByCompanyId(Long companyId);
+    ResponseEntity<Object> viewAllEmployees();
+    ResponseEntity<Object> viewEmployeesByCompanyId(Long companyId);
     public Object findEmployeeById(Long empId);
     ResponseEntity<Object> updateEmployee(Employee employee);
     ResponseEntity<Object> changePassword(String email, ChangePasswordDTO changePasswordDTO);
