@@ -1,27 +1,21 @@
 package com.employee.employee_master.serviceImpl;
 
-import com.employee.employee_master.dto.ChangePasswordDTO;
-import com.employee.employee_master.dto.ForgetPasswordDTO;
-import com.employee.employee_master.dto.OtpValidateDTO;
-import com.employee.employee_master.dto.ResponseDTO;
-import com.employee.employee_master.entity.Employee;
-import com.employee.employee_master.entity.OtpValidation;
-import com.employee.employee_master.exception.EmployeeNotFoundException;
-import com.employee.employee_master.repository.EmployeeRepo;
-import com.employee.employee_master.repository.OtpValidationRepository;
-import com.employee.employee_master.service.EmployeeService;
+import com.employee.employee_master.dto.*;
+import com.employee.employee_master.entity.*;
+import com.employee.employee_master.repository.*;
+import com.employee.employee_master.service.*;
 import jakarta.persistence.*;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.*;
+import org.modelmapper.*;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.*;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
+import org.springframework.security.crypto.password.*;
+import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 
 @Service
@@ -67,7 +61,15 @@ public class EmployeeServiceImpl implements EmployeeService {
             ResponseDTO response = new ResponseDTO();
             response.setMessage("Employee not found!");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }}
+        }
+    }
+
+    @Override
+    @Cacheable(value = "'allUsers'")
+    public Page<Employee> viewAllEmployeePagination(int page, int size) { //The url has been changed due to pagination
+        Pageable pageable = PageRequest.of(0, size,Sort.by(Sort.Order.desc("emp_id"))); // Default to page 0
+        return employeeRepo.findAll(pageable);
+    }
 
     @Override
     @Cacheable(value = "#empCompanyId")
@@ -222,11 +224,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return String.format("%06d", number);
     }
 
-    public ResponseEntity<Object> addAndUpdateEmployeeProcedure(Employee employee, String procedure) {
+    public ResponseEntity<Object> addAndUpdateEmployeeProcedure(Employee employee, String procedureName) {
         //This method is compatible to add and update both from a single method.
-        StoredProcedureQuery query = entityManager.createNamedStoredProcedureQuery(procedure);
+        //pass procedure name as an argument
+        StoredProcedureQuery query = entityManager.createNamedStoredProcedureQuery(procedureName);//
         ResponseDTO response = new ResponseDTO();
-        if (procedure.equalsIgnoreCase("update_employee")) {
+        if (procedureName.equalsIgnoreCase("update_employee")) {
             query.setParameter("p_emp_id", employee.getEmpId());
             response.setMessage("Employee Updated Successfully");
         }else{

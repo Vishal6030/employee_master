@@ -1,27 +1,21 @@
 package com.employee.employee_master.controller;
 
 import com.employee.employee_master.dto.*;
-import com.employee.employee_master.entity.Employee;
-import com.employee.employee_master.entity.OtpValidation;
-import com.employee.employee_master.exception.EmployeeNotFoundException;
-import com.employee.employee_master.security.JWTUtility;
-import com.employee.employee_master.service.EmployeeService;
-import io.jsonwebtoken.Claims;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.employee.employee_master.entity.*;
+import com.employee.employee_master.repository.*;
+import com.employee.employee_master.security.*;
+import com.employee.employee_master.service.*;
+import io.jsonwebtoken.*;
+import org.modelmapper.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -44,6 +38,13 @@ public class EmployeeController {
     @GetMapping("/viewAllEmployees")
     public ResponseEntity<Object> viewAllEmployees(){
         return employeeService.viewAllEmployees();
+    }
+
+    @GetMapping("/viewAllEmployees/{size}")
+    public ResponseEntity<Object> viewAllEmployees(@RequestParam(defaultValue = "0") int page,
+                                                         @PathVariable int size){
+        Page<Employee> usersPage = employeeService.viewAllEmployeePagination(page, size);
+        return ResponseEntity.ok(usersPage);
     }
 
     @GetMapping("/viewEmployeeListByCompanyId/{companyId}")
