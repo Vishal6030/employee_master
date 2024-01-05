@@ -1,28 +1,28 @@
 package com.employee.employee_master.controller;
 
 import com.employee.employee_master.dto.*;
-import com.employee.employee_master.entity.*;
-import com.employee.employee_master.repository.*;
-import com.employee.employee_master.security.*;
-import com.employee.employee_master.service.*;
-import io.jsonwebtoken.*;
-import org.modelmapper.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.data.domain.*;
-import org.springframework.http.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
-import org.springframework.security.core.context.*;
+import com.employee.employee_master.entity.Employee;
+import com.employee.employee_master.entity.OtpValidation;
+import com.employee.employee_master.security.JWTUtility;
+import com.employee.employee_master.service.EmployeeService;
+import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/v1")
 public class EmployeeController {
 
-    @Autowired
-    ModelMapper modelMapper;
     @Autowired
     EmployeeService employeeService;
     @Autowired
@@ -79,7 +79,7 @@ public class EmployeeController {
 
     @PostMapping("/changePassword")
     public ResponseEntity<Object> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO, @RequestHeader("Authorization") String bearerToken) {
-        bearerToken = bearerToken.substring(7, bearerToken.length());
+        bearerToken = bearerToken.substring(7);
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
         return employeeService.changePassword(email, changePasswordDTO);
