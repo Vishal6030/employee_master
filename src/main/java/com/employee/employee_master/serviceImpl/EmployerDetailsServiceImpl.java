@@ -56,7 +56,7 @@ public class EmployerDetailsServiceImpl implements EmployerDetailsService {
         //This method is used to know salary details of an employee.
         try {
             EmployerDetails optionalDetails = employerDetailsRepo.findByEmpId(id);
-            if (optionalDetails!=null) {
+            if (optionalDetails != null) {
                 return optionalDetails;
             } else {
                 // Handling the case where no employee details were found for the given id.
@@ -66,6 +66,22 @@ public class EmployerDetailsServiceImpl implements EmployerDetailsService {
             // Log the exception
             ex.printStackTrace();
             throw new RuntimeException("Error retrieving employee details by id: " + id);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Object> updateEmployeeDetails(EmployerDetailsDTO employerDetailsDTO) {
+        EmployerDetails existingDetails = employerDetailsRepo.findByEmpId(employerDetailsDTO.getEmpId());
+        ResponseDTO response = new ResponseDTO();
+        if (existingDetails != null) {
+            EmployerDetails employerDetails = modelMapper.map(employerDetailsDTO, EmployerDetails.class);
+            employerDetails.setId(existingDetails.getId());
+            employerDetailsRepo.save(existingDetails);
+            response.setMessage("Details updated successfully!");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            response.setMessage("Employee Details not found!");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 }
