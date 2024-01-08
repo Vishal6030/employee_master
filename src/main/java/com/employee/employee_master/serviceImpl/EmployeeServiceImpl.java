@@ -54,10 +54,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Cacheable(value = "allEmployees")
     public ResponseEntity<Object> viewAllEmployees() {
         // This method is giving a complete list of employees.
-        List<Employee> employeeList= employeeRepo.findAll();
-        if(employeeList.isEmpty()){
+        List<Employee> employeeList = employeeRepo.findAll();
+        if (!employeeList.isEmpty()) {
             return new ResponseEntity<>(employeeList, HttpStatus.OK);
-        }else{
+        } else {
             ResponseDTO response = new ResponseDTO();
             response.setMessage("Employee not found!");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -67,7 +67,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Cacheable(value = "'allUsers'")
     public Page<Employee> viewAllEmployeePagination(int page, int size) { //The url has been changed due to pagination
-        Pageable pageable = PageRequest.of(0, size,Sort.by(Sort.Order.desc("emp_id"))); // Default to page 0
+        Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Order.desc("emp_id"))); // Default to page 0
         return employeeRepo.findAll(pageable);
     }
 
@@ -75,7 +75,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Cacheable(value = "#empCompanyId")
     public ResponseEntity<Object> viewEmployeesByCompanyId(Long companyId) {
         //This method is used to find employee List by companyId.
-        List<Employee> employee=employeeRepo.findByCompanyId(companyId);
+        List<Employee> employee = employeeRepo.findByCompanyId(companyId);
         if (!employee.isEmpty()) {
             return new ResponseEntity<>(employee, HttpStatus.OK);
         } else {
@@ -87,16 +87,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Cacheable(value = "#empId")
-    public Object findEmployeeById(Long empId) {
+    public ResponseEntity<Object> findEmployeeById(Long empId) {
         //This method is used to find employee by employeeId.
-        Map<String, String> response = new HashMap<>();
-        Optional<Employee> employee=employeeRepo.findById(empId);
+        Optional<Employee> employee = employeeRepo.findById(empId);
 
-        if(employee.isPresent()){
-            return employee;
-        }else{
-            response.put("message :", "Employee Not found with given Id ");
-            return response;
+        if (employee.isPresent()) {
+            return new ResponseEntity<>(employee.get(), HttpStatus.OK);
+        } else {
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage("Employee Not found with given Id ");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -232,7 +232,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (procedureName.equalsIgnoreCase("update_employee")) {
             query.setParameter("p_emp_id", employee.getEmpId());
             response.setMessage("Employee Updated Successfully");
-        }else{
+        } else {
             response.setMessage("Employee Added Successfully");
         }
         query.setParameter("p_address_id1", employee.getAddressId1());

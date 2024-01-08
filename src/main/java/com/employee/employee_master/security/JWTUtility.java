@@ -1,35 +1,24 @@
 package com.employee.employee_master.security;
 
-import com.employee.employee_master.dto.AppUserRole;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import com.employee.employee_master.dto.*;
+import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.security.core.authority.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.stereotype.*;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
-import java.security.Key;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 
 @Component
 public class JWTUtility {
 
-    public static final long JWT_TOKEN_VALIDITY = 24 * 60 * 60;
-    private String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";
+    @Value("${security.jwt.secret}")
+    private String secretKey;
 
-   /* @Value("${security.jwt.secret}")
-    private String secretKey;*/
-
-    /*@Value("${security.jwt.token.expire.length}")
-    private long validityInMilliseconds;*/
+    @Value("${security.jwt.token.expire.length}")
+    private long validityInMilliseconds;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -46,7 +35,7 @@ public class JWTUtility {
     }
 
     public Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -64,8 +53,8 @@ public class JWTUtility {
         claims.putAll(data);
 
         return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+                .setExpiration(new Date(System.currentTimeMillis() + validityInMilliseconds))
+                .signWith(SignatureAlgorithm.HS512, secretKey).compact();
 
     }
 }

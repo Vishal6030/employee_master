@@ -94,6 +94,22 @@ public class EmployerDetailsController {
         }
     }
 
+    @PutMapping("/updateEmployeeDetails")
+    public ResponseEntity<Object> updateEmployeeDetails(@RequestBody EmployerDetailsDTO employerDetailsDTO,
+                                                        @RequestHeader("Authorization") String bearerToken) {
+        bearerToken = bearerToken.substring(7);
+        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+        String email = claims.get("email").toString();
+        Employee existingUser = employeeRepo.findByWorkEmail(email);
+        if (existingUser != null) {
+            return employerDetailsService.updateEmployeeDetails(employerDetailsDTO);
+        } else {
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage("Unauthorized");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     private static String keyToString(SecretKey secretKey) {
         byte[] keyBytes = secretKey.getEncoded();
         return Base64.getEncoder().encodeToString(keyBytes);

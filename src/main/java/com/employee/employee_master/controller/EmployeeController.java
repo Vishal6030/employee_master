@@ -6,7 +6,6 @@ import com.employee.employee_master.repository.*;
 import com.employee.employee_master.security.*;
 import com.employee.employee_master.service.*;
 import io.jsonwebtoken.*;
-import org.modelmapper.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.http.*;
@@ -22,13 +21,16 @@ import java.util.*;
 public class EmployeeController {
 
     @Autowired
-    ModelMapper modelMapper;
-    @Autowired
     EmployeeService employeeService;
     @Autowired
     JWTUtility jwtUtility;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    EmployeeRepo employeeRepo;
+
+    @Value("${api.response.error}")
+    private String apiResponse;
 
     @PostMapping("/addEmployee")
     public ResponseEntity<Object> addEmployee(@RequestBody Employee employee){
@@ -36,30 +38,80 @@ public class EmployeeController {
     }
 
     @GetMapping("/viewAllEmployees")
-    public ResponseEntity<Object> viewAllEmployees(){
-        return employeeService.viewAllEmployees();
+    public ResponseEntity<Object> viewAllEmployees(@RequestHeader("Authorization") String bearerToken){
+        bearerToken = bearerToken.substring(7);
+        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+        String email = claims.get("email").toString();
+        Employee emp = employeeRepo.findByWorkEmail(email);
+        if(emp!=null) {
+            return employeeService.viewAllEmployees();
+        }else{
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage(apiResponse);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @GetMapping("/viewAllEmployees/{size}")
     public ResponseEntity<Object> viewAllEmployees(@RequestParam(defaultValue = "0") int page,
-                                                         @PathVariable int size){
-        Page<Employee> usersPage = employeeService.viewAllEmployeePagination(page, size);
-        return ResponseEntity.ok(usersPage);
+                                                         @PathVariable int size, @RequestHeader("Authorization") String bearerToken){
+        bearerToken = bearerToken.substring(7);
+        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+        String email = claims.get("email").toString();
+        Employee emp = employeeRepo.findByWorkEmail(email);
+        if(emp!=null) {
+            Page<Employee> usersPage = employeeService.viewAllEmployeePagination(page, size);
+            return ResponseEntity.ok(usersPage);
+        }else{
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage(apiResponse);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @GetMapping("/viewEmployeeListByCompanyId/{companyId}")
-    public ResponseEntity<Object> viewEmployeesByCompanyId(@PathVariable Long companyId){
-        return employeeService.viewEmployeesByCompanyId(companyId);
+    public ResponseEntity<Object> viewEmployeesByCompanyId(@PathVariable Long companyId, @RequestHeader("Authorization") String bearerToken){
+        bearerToken = bearerToken.substring(7);
+        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+        String email = claims.get("email").toString();
+        Employee emp = employeeRepo.findByWorkEmail(email);
+        if(emp!=null) {
+            return employeeService.viewEmployeesByCompanyId(companyId);
+        }else{
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage(apiResponse);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @GetMapping("/findEmployeeById/{empId}")
-    public Object findEmployeeById(@PathVariable Long empId){
-             return employeeService.findEmployeeById(empId);
+    public ResponseEntity<Object> findEmployeeById(@PathVariable Long empId, @RequestHeader("Authorization") String bearerToken){
+        bearerToken = bearerToken.substring(7);
+        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+        String email = claims.get("email").toString();
+        Employee emp = employeeRepo.findByWorkEmail(email);
+        if(emp!=null) {
+            return employeeService.findEmployeeById(empId);
+        }else{
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage(apiResponse);
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @PutMapping("/updateEmployee")
-    public ResponseEntity<Object> updateEmployee(@RequestBody Employee employee){
-        return employeeService.updateEmployee(employee);
+    public ResponseEntity<Object> updateEmployee(@RequestBody Employee employee, @RequestHeader("Authorization") String bearerToken){
+        bearerToken = bearerToken.substring(7);
+        Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
+        String email = claims.get("email").toString();
+        Employee emp = employeeRepo.findByWorkEmail(email);
+        if(emp!=null) {
+            return employeeService.updateEmployee(employee);
+        }else{
+            ResponseDTO response = new ResponseDTO();
+            response.setMessage(apiResponse);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 
     //Generate and return JWT token
@@ -119,9 +171,7 @@ public class EmployeeController {
         String token = jwtUtility.createToken(email, roles, data);
         JWTTokenResponseDTO dto = new JWTTokenResponseDTO();
         dto.setToken(token);
-
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
-
 
 }
