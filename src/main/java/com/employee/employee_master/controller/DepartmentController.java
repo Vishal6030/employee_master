@@ -25,7 +25,7 @@ public class DepartmentController {
 
     @PostMapping("/addDepartment")
     public ResponseEntity<Object> addEmployee(@RequestBody Department department,@RequestHeader("Authorization") String bearerToken){
-        bearerToken = bearerToken.substring(7, bearerToken.length());
+        bearerToken = bearerToken.substring(7);
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
         Employee existingUser = employeeRepo.findByWorkEmail(email);
@@ -40,7 +40,7 @@ public class DepartmentController {
 
     @GetMapping("/viewDepartmentList")
     public ResponseEntity<Object> viewDepartmentList(@RequestHeader("Authorization") String bearerToken){
-        bearerToken = bearerToken.substring(7, bearerToken.length());
+        bearerToken = bearerToken.substring(7);
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
         Employee existingUser = employeeRepo.findByWorkEmail(email);

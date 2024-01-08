@@ -147,7 +147,7 @@ public class EmployeeController {
     @PostMapping("/changePassword")
     public ResponseEntity<Object> changePassword(@RequestBody ChangePasswordDTO
                                                          changePasswordDTO, @RequestHeader("Authorization") String bearerToken) {
-        bearerToken = bearerToken.substring(7, bearerToken.length());
+        bearerToken = bearerToken.substring(7);
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
         return employeeService.changePassword(email, changePasswordDTO);
@@ -173,7 +173,7 @@ public class EmployeeController {
     @PostMapping("/forgetPassword")
     public ResponseEntity<Object> forgetPassword(@RequestBody ForgetPasswordDTO
                                                          forgetPasswordDTO, @RequestHeader("Authorization") String bearerToken) {
-        bearerToken = bearerToken.substring(7, bearerToken.length());
+        bearerToken = bearerToken.substring(7);
         Claims claims = jwtUtility.getAllClaimsFromToken(bearerToken);
         String email = claims.get("email").toString();
         return employeeService.forgetPassword(email, forgetPasswordDTO);

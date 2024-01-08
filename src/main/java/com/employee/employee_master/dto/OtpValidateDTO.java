@@ -13,5 +13,4 @@ public class OtpValidateDTO {
     private String otp;
     private String email;
 
-
 }
